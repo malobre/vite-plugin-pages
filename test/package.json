@@ -1,0 +1,17 @@
+{
+  "name": "test",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --debug",
+    "build": "vite build --debug",
+    "preview": "vite preview --debug"
+  },
+  "devDependencies": {
+    "vite": "^5.0.12"
+  },
+  "dependencies": {
+    "@malobre/vite-plugin-pages": "file:.."
+  }
+}
