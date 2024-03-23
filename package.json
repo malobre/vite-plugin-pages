@@ -5,7 +5,7 @@
   "author": "Maël Obréjan <mael.obrejan@protonmail.com>",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": ["./dist/**/*"],
   "scripts": {
