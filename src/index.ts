@@ -27,9 +27,10 @@ const dev = (config: PagesConfig): Plugin => {
       server.middlewares.use(async (req, _res, next) => {
         if (req.url === undefined) return next();
 
-        const pagePath = `${pagesDir}${
-          new URL(req.url, "http://dummy.invalid").pathname
-        }`;
+        const pagePath = join(
+          pagesDir,
+          new URL(req.url, "http://dummy.invalid").pathname,
+        );
 
         await access(pagePath)
           .then(() => {
