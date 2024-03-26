@@ -80,15 +80,14 @@ const build = (config: PagesConfig): Plugin => {
 
       const pagesDir = join(viteConfig.root ?? process.cwd(), config.dir);
 
+      // Add all files in `pagesDir` to rollup inputs.
       for (const entry of await readdir(pagesDir, {
         recursive: true,
         withFileTypes: true,
       })) {
-        if (entry.isFile() && entry.name.endsWith(".html")) {
-          viteConfig.build.rollupOptions.input.push(
-            join(entry.path, entry.name),
-          );
-        }
+        if (!entry.isFile()) continue;
+
+        viteConfig.build.rollupOptions.input.push(join(entry.path, entry.name));
       }
 
       // Defaults to "index.html" inside `pagesDir`.
