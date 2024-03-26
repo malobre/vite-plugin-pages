@@ -1,6 +1,6 @@
 import { access, readdir } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative } from "node:path";
-import { normalizePath, type Plugin, type ResolvedConfig } from "vite";
+import { type Plugin, type ResolvedConfig, normalizePath } from "vite";
 
 type PagesConfig = {
   dir: string;
