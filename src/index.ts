@@ -22,6 +22,7 @@ const dev = (config: PagesConfig): Plugin => {
       viteConfig = resolved;
       pagesDir = relative(viteConfig.root, config.dir);
     },
+    // Proxy requests to `pagesDir` if requested file exists.
     configureServer(server) {
       server.middlewares.use(async (req, _res, next) => {
         if (req.url === undefined) return next();
@@ -39,6 +40,7 @@ const dev = (config: PagesConfig): Plugin => {
         next();
       });
     },
+    // Rewrite paths for HMR, such that files in `pagesDir` also reload the proxied URLs.
     handleHotUpdate(ctx) {
       if (viteConfig.server.middlewareMode) return;
 
@@ -67,6 +69,7 @@ const build = (config: PagesConfig): Plugin => {
         viteConfig.build ??= {};
         viteConfig.build.rollupOptions ??= {};
 
+        // Ensure input is initialized to an array while preserving values set by the user.
         viteConfig.build.rollupOptions.input =
           typeof viteConfig.build.rollupOptions.input === "object"
             ? Object.keys(viteConfig.build.rollupOptions.input)
