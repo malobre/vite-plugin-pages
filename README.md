@@ -1,8 +1,8 @@
 # `@malobre/vite-plugin-pages`
 
-This plugin does two things:
-- in development mode, it rebase requests for HTML files to `src/pages` if they are not found at their canonical url,
-- in build mode, it automatically use all HTML files from `src/pages` as input and move them to `dist/`.
+Enhanced MPA DX:
+- in dev mode, rebase requests to `src/pages` if the requested file exists there,
+- in build mode, treat all files in `src/pages` as inputs and rebase them to your project root.
 
 ## Usage
 
@@ -21,7 +21,7 @@ This plugin does two things:
 
 ```ts
 type Config = {
-  // Where to look for HTML files, defaults to `src/pages`.
+  // Where your pages are stored, defaults to `src/pages`.
   // Relative to vite's project root: https://vitejs.dev/guide/#index-html-and-project-root
   dir: string;
 };
