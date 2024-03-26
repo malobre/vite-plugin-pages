@@ -1,4 +1,4 @@
-# `vite-plugin-pages`
+# `@malobre/vite-plugin-pages`
 
 This plugin does two things:
 - in development mode, it rebase requests for HTML files to `src/pages` if they are not found at their canonical url,
