@@ -73,25 +73,26 @@ const build = (config: PagesConfig): Plugin => {
             : typeof viteConfig.build.rollupOptions.input === "string"
               ? [viteConfig.build.rollupOptions.input]
               : typeof viteConfig.build.rollupOptions.input === "undefined"
-                ? await access(join(viteConfig.root ?? ".", "index.html")).then(
-                    () => ["index.html"],
-                    () => [],
-                  )
+                ? []
                 : (viteConfig.build.rollupOptions.input satisfies never);
       }
 
-      for (const entry of await readdir(
-        join(viteConfig.root ?? "", config.dir),
-        {
-          recursive: true,
-          withFileTypes: true,
-        },
-      )) {
+      const pagesDir = join(viteConfig.root ?? "", config.dir);
+
+      for (const entry of await readdir(pagesDir, {
+        recursive: true,
+        withFileTypes: true,
+      })) {
         if (entry.isFile() && entry.name.endsWith(".html")) {
           viteConfig.build.rollupOptions.input.push(
             join(entry.path, entry.name),
           );
         }
+      }
+
+      // Defaults to "index.html" inside `pagesDir`.
+      if (viteConfig.build.rollupOptions.input.length === 0) {
+        viteConfig.build.rollupOptions.input.push(join(pagesDir, "index.html"));
       }
     },
     configResolved(resolved) {
