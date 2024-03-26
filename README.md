@@ -6,7 +6,7 @@ Enhanced MPA DX:
 
 ## Usage
 
-1. Install `npm install --save-dev https://github.com/malobre/vite-plugin-pages.git`
+1. Install `npm install --save-dev @malobre/vite-plugin-pages`
 1. Add plugin to your vite config
     ```js
     import { defineConfig } from 'vite'
