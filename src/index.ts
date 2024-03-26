@@ -77,7 +77,7 @@ const build = (config: PagesConfig): Plugin => {
                 : (viteConfig.build.rollupOptions.input satisfies never);
       }
 
-      const pagesDir = join(viteConfig.root ?? "", config.dir);
+      const pagesDir = join(viteConfig.root ?? process.cwd(), config.dir);
 
       for (const entry of await readdir(pagesDir, {
         recursive: true,
