@@ -1,5 +1,5 @@
 import { access, readdir } from "node:fs/promises";
-import { dirname, isAbsolute, join, relative } from "node:path";
+import { join, relative } from "node:path";
 import { type Plugin, type ResolvedConfig, normalizePath } from "vite";
 
 type PagesConfig = {
@@ -102,18 +102,21 @@ const build = (config: PagesConfig): Plugin => {
 
       const paths = Object.keys(bundle);
 
+      // Remove `pagesDir` prefix from output paths.
       for (const output of Object.values(bundle)) {
-        const path = relative(pagesDir, output.fileName);
+        if (!output.fileName.startsWith(pagesDir)) continue;
 
-        if (dirname(path).startsWith("..") || isAbsolute(path)) continue;
+        const from = output.fileName;
 
-        if (paths.includes(path)) {
+        const to = relative(pagesDir, output.fileName);
+
+        if (paths.includes(to)) {
           throw new Error(
-            `Conflict between "${path}" and "${output.fileName}"`,
+            `Conflicting inputs, "${from}" would override "${to}"`,
           );
         }
 
-        output.fileName = path;
+        output.fileName = to;
       }
     },
   };
