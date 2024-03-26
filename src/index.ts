@@ -45,10 +45,7 @@ const dev = (config: PagesConfig): Plugin => {
     handleHotUpdate(ctx) {
       if (viteConfig.server.middlewareMode) return;
 
-      if (
-        relative(viteConfig.root, ctx.file).startsWith(config.dir) &&
-        ctx.file.endsWith(".html")
-      ) {
+      if (relative(viteConfig.root, ctx.file).startsWith(config.dir)) {
         ctx.server.ws.send({
           type: "full-reload",
           path: `/${normalizePath(relative(config.dir, ctx.file))}`,
