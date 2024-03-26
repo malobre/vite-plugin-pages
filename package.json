@@ -1,13 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@malobre/vite-plugin-pages",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Maël Obréjan <mael.obrejan@protonmail.com>",
   "license": "MIT",
   "type": "module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["./dist/**/*"],
+  "files": [
+    "./dist/**/*"
+  ],
   "scripts": {
     "tidy": "biome check --apply .",
     "check": "tsc",
