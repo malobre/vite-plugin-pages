@@ -43,14 +43,14 @@ const dev = (config: PagesConfig): Plugin => {
     },
     // Rewrite paths for HMR, such that files in `pagesDir` also reload the proxied URLs.
     handleHotUpdate(ctx) {
-      if (viteConfig.server.middlewareMode) return;
+      if (!relative(viteConfig.root, ctx.file).startsWith(config.dir)) return;
 
-      if (relative(viteConfig.root, ctx.file).startsWith(config.dir)) {
-        ctx.server.ws.send({
-          type: "full-reload",
-          path: `/${normalizePath(relative(config.dir, ctx.file))}`,
-        });
-      }
+      ctx.server.ws.send({
+        type: "full-reload",
+        path: viteConfig.server.middlewareMode
+          ? "*"
+          : "/".concat(normalizePath(relative(config.dir, ctx.file))),
+      });
     },
   };
 };
