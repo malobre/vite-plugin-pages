@@ -75,7 +75,12 @@ const build = (config: PagesConfig): Plugin => {
               ? [viteConfig.build.rollupOptions.input]
               : typeof viteConfig.build.rollupOptions.input === "undefined"
                 ? []
-                : (viteConfig.build.rollupOptions.input satisfies never);
+                : (() => {
+                    viteConfig.build.rollupOptions.input satisfies never;
+                    throw new Error(
+                      "unable to convert rollupOptions.input to an array",
+                    );
+                  })();
       }
 
       const pagesDir = join(viteConfig.root ?? process.cwd(), config.dir);
