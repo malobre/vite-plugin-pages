@@ -16,10 +16,10 @@
     "prepare": "tsup src/index.ts --format=esm --dts --clean --sourcemap"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.5.3",
-    "@types/node": "^20.11.16",
-    "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.9.3",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
   },
   "peerDependencies": {
     "vite": "^5.0.0"
