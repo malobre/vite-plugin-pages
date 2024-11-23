@@ -87,7 +87,9 @@ const build = (config: PagesConfig): Plugin => {
       })) {
         if (!entry.isFile()) continue;
 
-        viteConfig.build.rollupOptions.input.push(join(entry.path, entry.name));
+        viteConfig.build.rollupOptions.input.push(
+          join(entry.parentPath, entry.name),
+        );
       }
 
       // Defaults to "index.html" inside `pagesDir`.
