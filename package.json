@@ -3,6 +3,8 @@
   "name": "@malobre/vite-plugin-pages",
   "version": "0.1.1",
   "author": "Maël Obréjan <mael.obrejan@protonmail.com>",
+  "description": "Automatically look for inputs in `src/pages`",
+  "keywords": ["vite-plugin"],
   "license": "MIT",
   "type": "module",
   "exports": "./dist/index.js",
