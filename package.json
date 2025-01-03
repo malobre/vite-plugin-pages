@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@malobre/vite-plugin-pages",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "Maël Obréjan <mael.obrejan@protonmail.com>",
   "description": "Automatically look for inputs in `src/pages`",
   "keywords": ["vite-plugin"],
