@@ -4,7 +4,9 @@
   "version": "0.2.0",
   "author": "Maël Obréjan <mael.obrejan@protonmail.com>",
   "description": "Automatically look for inputs in `src/pages`",
-  "keywords": ["vite-plugin"],
+  "keywords": [
+    "vite-plugin"
+  ],
   "license": "MIT",
   "type": "module",
   "exports": "./dist/index.js",
@@ -13,15 +15,15 @@
     "./dist/**/*"
   ],
   "scripts": {
-    "tidy": "biome check --apply .",
+    "tidy": "biome check --write",
     "check": "tsc",
     "prepare": "tsup src/index.ts --format=esm --dts --clean --sourcemap"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.9.3",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "@biomejs/biome": "^2.1.4",
+    "@types/node": "^24.2.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
   },
   "peerDependencies": {
     "vite": "^6.0.0"
