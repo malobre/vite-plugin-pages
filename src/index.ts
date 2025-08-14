@@ -1,6 +1,9 @@
+import console from "node:console";
 import { access, readdir } from "node:fs/promises";
-import { join, relative } from "node:path";
-import { type Plugin, type ResolvedConfig, normalizePath } from "vite";
+import { join, normalize, relative, resolve } from "node:path";
+import process from "node:process";
+
+import { normalizePath, type Plugin, type ResolvedConfig } from "vite";
 
 type PagesConfig = {
   dir: string;
@@ -20,23 +23,29 @@ const dev = (config: PagesConfig): Plugin => {
     apply: (_viteConfig, env) => env.command === "serve" && !env.isPreview,
     configResolved(resolved) {
       viteConfig = resolved;
-      pagesDir = relative(viteConfig.root, config.dir);
+      pagesDir = normalize(config.dir);
     },
     // Proxy requests to `pagesDir` if requested file exists.
     configureServer(server) {
       server.middlewares.use(async (req, _res, next) => {
         if (req.url === undefined) return next();
 
-        const pagePath = join(
-          pagesDir,
-          new URL(req.url, "http://dummy.invalid").pathname,
-        );
+        const requestedPath = new URL(req.url, "http://dummy.invalid").pathname;
+        const pagePath = normalize(join(pagesDir, requestedPath));
 
+        // Prevent directory traversal by ensuring the resolved path is within pagesDir
+        if (!resolve(pagePath).startsWith(pagesDir)) {
+          return next();
+        }
+
+        // Proxy existing files only
         await access(pagePath)
           .then(() => {
-            req.url = `/${pagePath}`;
+            req.url = `/${normalizePath(pagePath)}`;
           })
-          .catch(() => {});
+          .catch((error) => {
+            console.debug(`Unable to access ${pagePath}, skipping: ${error}`);
+          });
 
         next();
       });
@@ -62,61 +71,73 @@ const build = (config: PagesConfig): Plugin => {
     name: "@malobre/vite-plugin-pages:build",
     enforce: "post",
     apply: "build",
-    async config(viteConfig, _env) {
-      if (!Array.isArray(viteConfig.build?.rollupOptions?.input)) {
-        viteConfig.build ??= {};
-        viteConfig.build.rollupOptions ??= {};
+    async config(userConfig, _env) {
+      if (!Array.isArray(userConfig.build?.rollupOptions?.input)) {
+        userConfig.build ??= {};
+        userConfig.build.rollupOptions ??= {};
 
         // Ensure input is initialized to an array while preserving values set by the user.
-        viteConfig.build.rollupOptions.input =
-          typeof viteConfig.build.rollupOptions.input === "object"
-            ? Object.keys(viteConfig.build.rollupOptions.input)
-            : typeof viteConfig.build.rollupOptions.input === "string"
-              ? [viteConfig.build.rollupOptions.input]
-              : typeof viteConfig.build.rollupOptions.input === "undefined"
-                ? []
-                : (() => {
-                    viteConfig.build.rollupOptions.input satisfies never;
-                    throw new Error(
-                      "unable to convert rollupOptions.input to an array",
-                    );
-                  })();
+        userConfig.build.rollupOptions.input =
+          typeof userConfig.build.rollupOptions.input === "object"
+            ? Object.keys(userConfig.build.rollupOptions.input)
+            : typeof userConfig.build.rollupOptions.input === "string"
+            ? [userConfig.build.rollupOptions.input]
+            : typeof userConfig.build.rollupOptions.input === "undefined"
+            ? []
+            : (() => {
+              userConfig.build.rollupOptions.input satisfies never;
+              throw new Error(
+                "unable to convert rollupOptions.input to an array",
+              );
+            })();
       }
 
-      const pagesDir = join(viteConfig.root ?? process.cwd(), config.dir);
+      const pagesDir = join(userConfig.root ?? process.cwd(), config.dir);
 
       // Add all files in `pagesDir` to rollup inputs.
-      for (const entry of await readdir(pagesDir, {
-        recursive: true,
-        withFileTypes: true,
-      })) {
+      for (
+        const entry of await readdir(pagesDir, {
+          recursive: true,
+          withFileTypes: true,
+        }).catch((error) => {
+          console.warn(`Unable to read dir ${pagesDir}: ${error}`);
+          return [];
+        })
+      ) {
         if (!entry.isFile()) continue;
 
-        viteConfig.build.rollupOptions.input.push(
+        userConfig.build.rollupOptions.input.push(
           join(entry.parentPath, entry.name),
         );
       }
 
       // Defaults to "index.html" inside `pagesDir`.
-      if (viteConfig.build.rollupOptions.input.length === 0) {
-        viteConfig.build.rollupOptions.input.push(join(pagesDir, "index.html"));
+      if (userConfig.build.rollupOptions.input.length === 0) {
+        userConfig.build.rollupOptions.input.push(join(pagesDir, "index.html"));
       }
     },
     configResolved(resolved) {
       viteConfig = resolved;
     },
-    async generateBundle(_options, bundle) {
-      const pagesDir = relative(viteConfig.root, config.dir);
+    generateBundle(_options, bundle) {
+      const absolutePagesDir = resolve(viteConfig.root, config.dir);
 
       const paths = Object.keys(bundle);
 
       // Remove `pagesDir` prefix from output paths.
       for (const output of Object.values(bundle)) {
-        if (!output.fileName.startsWith(pagesDir)) continue;
+        const absoluteFileName = resolve(viteConfig.root, output.fileName);
+
+        // Skip if this file is outside the pages directory
+        if (!absoluteFileName.startsWith(absolutePagesDir)) {
+          continue;
+        }
 
         const from = output.fileName;
 
-        const to = relative(pagesDir, output.fileName);
+        // Calculate the relative path from the pages directory,
+        // effectively removing the pages directory prefix.
+        const to = relative(absolutePagesDir, absoluteFileName);
 
         if (paths.includes(to)) {
           throw new Error(
